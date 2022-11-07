@@ -1,0 +1,26 @@
+name: iris_pic_editor
+description: A image editor package.
+version: 0.0.2
+homepage: https://iris.ir
+
+environment:
+  sdk: ">=2.15.0"
+  flutter: ">=2.2.0"
+
+  # use this: https://pub.dev/packages/bitmap
+  # use this: https://github.com/chooyan-eng/crop_your_image
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  image: ^3.2.0                 # W     {crop, rotate}
+  image_editor: ^1.1.0          #     {crop, rotate [native]}
+  #image_editor_pro
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
