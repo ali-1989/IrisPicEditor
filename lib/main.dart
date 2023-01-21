@@ -2,20 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 Future<void> main() async {
 
   Future<void> appInitialize() async {
     WidgetsFlutterBinding.ensureInitialized();
-    SchedulerBinding.instance.ensureVisualUpdate();
-    SchedulerBinding.instance.window.scheduleFrame();
   }
 
   ///===== call on any hot reload
   runZonedGuarded((){
     appInitialize();
     runApp(const MyApp());
+
     }, (error, stackTrace) {
     print('@@ catch on ZonedGuarded: ${error.toString()}');
 

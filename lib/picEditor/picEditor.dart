@@ -17,11 +17,22 @@ import 'package:iris_pic_editor/picEditor/picEditorCtr.dart';
 //import 'imageDraw.dart';
 //import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-///==================================================================================================
+
 class PicEditor extends StatefulWidget {
   final EditOptions editOptions;
+  final ThemeData? theme;
+  final MaterialColor? primaryColor;
+  final Color? secondaryColor;
+  final Color? backgroundColor;
 
-  PicEditor(this.editOptions);
+  PicEditor(
+  this.editOptions, {
+    this.theme,
+    this.primaryColor,
+    this.secondaryColor,
+    this.backgroundColor,
+        Key? key,
+  }): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -38,32 +49,27 @@ class PicEditor extends StatefulWidget {
     return file.readAsBytesSync();
   }
 
-  static Future<ui.Image> bytesToImage(
-      Uint8List imgBytes, InOutParam? fnResult) async {
+  static Future<ui.Image> bytesToImage(Uint8List imgBytes, InOutParam? fnResult) async {
     ui.Codec codec = await ui.instantiateImageCodec(imgBytes);
     ui.FrameInfo frame = await codec.getNextFrame();
 
     bool isLandscape = frame.image.width >= frame.image.height;
-    bool hasNormalSize = hasNormalDimension(
-        Point(frame.image.width, frame.image.height), 1000, 800);
+    bool hasNormalSize = hasNormalDimension(Point(frame.image.width, frame.image.height), 1000, 800);
 
     fnResult?.originalSizeChanged = false;
 
-    if (hasNormalSize)
+    if (hasNormalSize) {
       return frame.image;
+    }
 
     fnResult?.originalSizeChanged = true;
-    Point<int> xy = getScaledDimensionByRate(
-        Point<int>(frame.image.width, frame.image.height),
-        Point<int>(1000, 800));
+    Point<int> xy = getScaledDimensionByRate(Point<int>(frame.image.width, frame.image.height), Point<int>(1000, 800));
 
-    if (!isLandscape)
-      xy = getScaledDimensionByRate(
-          Point<int>(frame.image.width, frame.image.height),
-          Point<int>(800, 1000));
+    if (!isLandscape) {
+      xy = getScaledDimensionByRate(Point<int>(frame.image.width, frame.image.height), Point<int>(800, 1000));
+    }
 
-    codec = await ui.instantiateImageCodec(imgBytes,
-        targetWidth: xy.x, targetHeight: xy.y);
+    codec = await ui.instantiateImageCodec(imgBytes, targetWidth: xy.x, targetHeight: xy.y);
     frame = await codec.getNextFrame();
     return frame.image;
   }
@@ -73,16 +79,14 @@ class PicEditor extends StatefulWidget {
     return data!.buffer.asUint8List();
   }
 
-  static bool hasNormalDimension(
-      Point imageSize, int maxWinLandscape, int maxHinLandscape) {
+  static bool hasNormalDimension(Point imageSize, int maxWinLandscape, int maxHinLandscape) {
     bool isLandscape = imageSize.x >= imageSize.y;
     return isLandscape
         ? (imageSize.x <= maxWinLandscape && imageSize.y <= maxHinLandscape)
         : (imageSize.x <= maxHinLandscape && imageSize.y <= maxWinLandscape);
   }
 
-  static Point<int> getScaledDimension(
-      Point<int> imgSize, Point<int> boundary) {
+  static Point<int> getScaledDimension(Point<int> imgSize, Point<int> boundary) {
     int originalWidth = imgSize.x;
     int originalHeight = imgSize.y;
     int boundWidth = boundary.x;
@@ -101,28 +105,26 @@ class PicEditor extends StatefulWidget {
       newWidth = ((newHeight * originalWidth) ~/ originalHeight);
     }
 
-    return new Point<int>(newWidth, newHeight);
+    return Point<int>(newWidth, newHeight);
   }
 
-  static Point<int> getScaledDimensionByRate(
-      Point<int> imageSize, Point<int> boundary) {
+  static Point<int> getScaledDimensionByRate(Point<int> imageSize, Point<int> boundary) {
     double widthRatio = boundary.x / imageSize.x;
     double heightRatio = boundary.y / imageSize.y;
     double ratio = min(widthRatio, heightRatio);
 
-    return Point<int>(
-        (imageSize.x * ratio).toInt(), (imageSize.y * ratio).toInt());
+    return Point<int>((imageSize.x * ratio).toInt(), (imageSize.y * ratio).toInt());
   }
 }
 ///==================================================================================================
 class PicEditorState extends State<PicEditor> {
   var stateController = StateManagerController();
-  var controller = PicEditorCtr();
+  var editorController = PicEditorCtr();
   late ThemeData theme;
   late SliderThemeData sliderTheme;
-  var toolbarRefreshKey = 'toolBarRefresher';
-  var progressRefresherKey = 'progressRefresher';
-  var imageRefresherKey = 'imageHolderRefresher';
+  final id$state$toolbar = 'toolBarRefresher';
+  final id$state$progress = 'progressRefresher';
+  final id$state$image = 'imageHolderRefresher';
 
 
   PicEditorState();
@@ -130,15 +132,24 @@ class PicEditorState extends State<PicEditor> {
   @override
   void initState() {
     super.initState();
-    controller.onInitState(this);
+    editorController.onInitState(this);
   }
 
   @override
   Widget build(BuildContext context) {
-    controller.onBuild();
+    editorController.onBuild();
 
-    theme = Theme.of(context);
-    sliderTheme = SliderTheme.of(context).copyWith(
+    theme = widget.theme?? Theme.of(context);
+
+    if(widget.primaryColor != null){
+      theme = theme.copyWith(
+          primaryColor: widget.primaryColor,
+          backgroundColor: widget.backgroundColor,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: widget.primaryColor!, accentColor: widget.secondaryColor, backgroundColor: widget.backgroundColor)
+      );
+    }
+
+    sliderTheme = theme.sliderTheme.copyWith(
       trackHeight: 4.0,
       trackShape: RectangularSliderTrackShape(),
       thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
@@ -163,9 +174,9 @@ class PicEditorState extends State<PicEditor> {
       controller: stateController,
       builder: (context, ctr, data) {
         return Scaffold(
-          appBar: getAppbar(),
-          body: getBody(),
-          bottomNavigationBar: getNavBar(),
+          appBar: buildAppbar(),
+          body: buildBody(),
+          bottomNavigationBar: buildBottomNavBar(),
         );
       }
     );
@@ -173,7 +184,7 @@ class PicEditorState extends State<PicEditor> {
 
   @override
   void dispose() {
-    controller.onDispose();
+    editorController.onDispose();
     stateController.dispose();
 
     super.dispose();
@@ -183,7 +194,7 @@ class PicEditorState extends State<PicEditor> {
     setState(() {});
   }
 
-  PreferredSizeWidget getAppbar() {
+  PreferredSizeWidget buildAppbar() {
     return AppBar(
       automaticallyImplyLeading: false,
       actions: <Widget>[
@@ -194,9 +205,7 @@ class PicEditorState extends State<PicEditor> {
           child: IconButton(
             iconSize: 20,
             onPressed: () {
-              controller.editOptions.hasResult = false;
-              Navigator.of(context).pop();
-              controller.editOptions.callOnCancel?.call(controller.editOptions);
+              onCancelClick();
             },
             splashColor: Colors.white,
             icon: Icon(
@@ -205,25 +214,28 @@ class PicEditorState extends State<PicEditor> {
             ),
           ),
         ),
+
         VerticalDivider(
           indent: 8,
           endIndent: 8,
         ),
-        Material(
-          clipBehavior: Clip.antiAlias,
-          type: MaterialType.circle,
-          color: Colors.transparent,
-          child: IconButton(
-            iconSize: 20,
-            onPressed: () {
-              controller.editOptions.hasResult = true;
-              Navigator.of(context).pop();
-              controller.editOptions.callOnResult?.call(controller.editOptions);
-            },
-            splashColor: Colors.white,
-            icon: Icon(
-              Icons.check,
-              color: theme.appBarTheme.iconTheme!.color,
+
+        Visibility(
+          visible: !editorController.mustShowOperationProgress,
+          child: Material(
+            clipBehavior: Clip.antiAlias,
+            type: MaterialType.circle,
+            color: Colors.transparent,
+            child: IconButton(
+              iconSize: 20,
+              onPressed: () {
+                onOkClick();
+              },
+              splashColor: Colors.white,
+              icon: Icon(
+                Icons.check,
+                color: theme.appBarTheme.iconTheme!.color,
+              ),
             ),
           ),
         ),
@@ -231,7 +243,7 @@ class PicEditorState extends State<PicEditor> {
     );
   }
 
-  Widget getNavBar() {
+  Widget buildBottomNavBar() {
     return SizedBox(
       width: double.infinity,
       height: 60,
@@ -248,32 +260,32 @@ class PicEditorState extends State<PicEditor> {
                 generateNavBarButton(
                     Icons.crop,
                     EditorActions.CROP,
-                    controller.cropAction
+                    editorController.cropAction
                 ),
                 generateNavBarButton(
                     Icons.rotate_right,
                     EditorActions.ROTATE,
-                    controller.rotateAction
+                    editorController.rotateAction
                 ),
                 generateNavBarButton(
                     Icons.flip,
                     EditorActions.FLIP,
-                    controller.flipAction
+                    editorController.flipAction
                 ),
                 generateNavBarButton(
                     Icons.brightness_7,
                     EditorActions.BRIGHTNESS,
-                    controller.brightnessAction
+                    editorController.brightnessAction
                 ),
                 generateNavBarButton(
                     Icons.brightness_6,
                     EditorActions.CONTRAST,
-                    controller.contrastAction
+                    editorController.contrastAction
                 ),
                 generateNavBarButton(
                     Icons.color_lens,
                     EditorActions.COLOR,
-                    controller.colorAction
+                    editorController.colorAction
                 ),
                 //getActionBtnView(state, FontAwesomeIcons.brush, currentAction, Actions.DRAW, (){drawAction(state);}),
               ],
@@ -284,24 +296,24 @@ class PicEditorState extends State<PicEditor> {
     );
   }
 
-  Widget getBody() {
+  Widget buildBody() {
     return Stack(
       fit: StackFit.expand,
       children: <Widget>[
         ///--- background
         Positioned.fill(
             child: ColoredBox(
-          color: controller.editOptions.backgroundColor,
+          color: editorController.editOptions.backgroundColor,
           ),
         ),
 
         ///--- src image
         Positioned.fill(
           child: StateManager(
-            id: imageRefresherKey,
+            id: id$state$image,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              if (controller.mustShowLoadingProgress)
+              if (editorController.mustShowLoadingProgress) {
                 return Center(
                     child: SizedBox(
                         width: 60,
@@ -309,29 +321,30 @@ class PicEditorState extends State<PicEditor> {
                         child: CircularProgressIndicator()
                     )
                 );
+              }
 
               return CustomPaint(
-                painter: _ImagePainter(controller.editorState),
-                foregroundPainter: controller.currentAction == EditorActions.CROP
-                    ? _CropBoxPainter(controller.editorState)
+                painter: _ImagePainter(editorController.editorState),
+                foregroundPainter: editorController.currentAction == EditorActions.CROP
+                    ? _CropBoxPainter(editorController.editorState)
                     : null,
                 child: Builder(
                   builder: (ctx) {
-                    if (controller.currentAction != EditorActions.CROP) {
+                    if (editorController.currentAction != EditorActions.CROP) {
                       return SizedBox();
                     }
 
                     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                      controller.renderBox = ctx.findRenderObject() as RenderBox;
+                      editorController.renderBox = ctx.findRenderObject() as RenderBox;
                     });
 
                     return RawGestureDetector(
                       gestures: {
                         PanGestureRecognizer: GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
                           () => PanGestureRecognizer(
-                            onPanStart: controller.onPanUpdate,
-                            onPanMove: controller.onPanUpdate,
-                            onPanEnd: controller.onPanEnd,
+                            onPanStart: editorController.onPanUpdate,
+                            onPanMove: editorController.onPanUpdate,
+                            onPanEnd: editorController.onPanEnd,
                           ),
                           (recognizer) {},
                         )
@@ -351,10 +364,10 @@ class PicEditorState extends State<PicEditor> {
           right: 18,
           height: 60,
           child: StateManager(
-            id: toolbarRefreshKey,
+            id: id$state$toolbar,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              switch (controller.currentAction) {
+              switch (editorController.currentAction) {
                 case EditorActions.CROP:
                   return Align(
                       alignment: Alignment.bottomRight,
@@ -368,7 +381,7 @@ class PicEditorState extends State<PicEditor> {
                             type: MaterialType.button,
                             child: InkWell(
                                 onTap: () {
-                                  controller.cropImage();
+                                  editorController.cropImage();
                                 },
                                 splashColor: Colors.white,
                                 child: Icon(
@@ -391,7 +404,7 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.rotateToRight();
+                                    editorController.rotateToRight();
                                   },
                                   splashColor: Colors.white,
                                   child: Icon(
@@ -411,7 +424,7 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.rotateToLeft();
+                                    editorController.rotateToLeft();
                                   },
                                   splashColor: Colors.white,
                                   child: Icon(
@@ -435,7 +448,7 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.flipHImage();
+                                    editorController.flipHImage();
                                   },
                                   splashColor: Colors.white,
                                   child: Icon(
@@ -455,7 +468,7 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.flipVImage();
+                                    editorController.flipVImage();
                                   },
                                   splashColor: Colors.white,
                                   child: Transform.rotate(
@@ -481,12 +494,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.brightnessValue += 0.3;
-                                    controller.brightnessActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.brightnessValue += 0.3;
+                                    editorController.brightnessActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller.brightnessActionT.fireBy(fn: () {
-                                      controller.addBrightness();
+                                    editorController.brightnessActionT.fireBy(fn: () {
+                                      editorController.addBrightness();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -507,12 +520,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.brightnessValue += 0.1;
-                                    controller.brightnessActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.brightnessValue += 0.1;
+                                    editorController.brightnessActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller.brightnessActionT.fireBy(fn: () {
-                                      controller.minusBrightness();
+                                    editorController.brightnessActionT.fireBy(fn: () {
+                                      editorController.minusBrightness();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -537,12 +550,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.contrastValue += 0.3;
-                                    controller.contrastActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.contrastValue += 0.3;
+                                    editorController.contrastActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller.contrastActionT.fireBy(fn: () {
-                                      controller.addContrast();
+                                    editorController.contrastActionT.fireBy(fn: () {
+                                      editorController.addContrast();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -563,12 +576,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.contrastValue += 0.1;
-                                    controller.contrastActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.contrastValue += 0.1;
+                                    editorController.contrastActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller.contrastActionT.fireBy(fn: () {
-                                      controller.minusContrast();
+                                    editorController.contrastActionT.fireBy(fn: () {
+                                      editorController.minusContrast();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -593,12 +606,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.colorValue += 0.3;
-                                    controller.colorActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.colorValue += 0.3;
+                                    editorController.colorActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller..colorActionT.fireBy(fn: () {
-                                      controller.addColor();
+                                    editorController..colorActionT.fireBy(fn: () {
+                                      editorController.addColor();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -619,12 +632,12 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    controller.colorValue += 0.1;
-                                    controller.colorActionT.setFirstStartAction(() {
-                                      controller.showProgress();
+                                    editorController.colorValue += 0.1;
+                                    editorController.colorActionT.setFirstStartAction(() {
+                                      editorController.showProgress();
                                     });
-                                    controller.colorActionT.fireBy(fn: () {
-                                      controller.minusColor();
+                                    editorController.colorActionT.fireBy(fn: () {
+                                      editorController.minusColor();
                                     });
                                   },
                                   splashColor: Colors.white,
@@ -654,16 +667,17 @@ class PicEditorState extends State<PicEditor> {
         ///---- progress
         Positioned.fill(
           child: StateManager(
-            id: progressRefresherKey,
+            id: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              if (controller.mustShowOperationProgress)
+              if (editorController.mustShowOperationProgress) {
                 return Center(
                     child: SizedBox(
                         width: 50,
                         height: 50,
                         child: CircularProgressIndicator())
                 );
+              }
 
               return SizedBox();
             },
@@ -673,16 +687,12 @@ class PicEditorState extends State<PicEditor> {
     );
   }
 
-  Widget generateNavBarButton(
-      IconData icon,
-      EditorActions actions,
-      Function() action
-      ) {
-    bool isActive = controller.currentAction == actions;
-    Color color = controller.editOptions.iconsColor;
+  Widget generateNavBarButton(IconData icon, EditorActions actions, Function() action) {
+    bool isActive = editorController.currentAction == actions;
+    Color color = editorController.editOptions.iconsColor;
 
-    if (controller.isNearHue(theme.appBarTheme.backgroundColor!, color)) {
-      color = controller.inverseColor(color);
+    if (editorController.isNearHue(theme.appBarTheme.backgroundColor!, color)) {
+      color = editorController.inverseColor(color);
     }
 
     color = isActive ? color : color.withAlpha(130);
@@ -693,10 +703,22 @@ class PicEditorState extends State<PicEditor> {
         textColor: color,
         iconColor: color,
         icon: icon,
-        title: controller.editOptions.showButtonText
+        title: editorController.editOptions.showButtonText
             ? actions.toString().replaceFirst(RegExp(r'EditorActions.'), '').substring(0, 4)
             : " ",
         onTap: action);
+  }
+
+  void onCancelClick() {
+    editorController.editOptions.hasResult = false;
+    Navigator.of(context).pop();
+    editorController.editOptions.callOnCancel?.call(editorController.editOptions);
+  }
+
+  void onOkClick() {
+    editorController.editOptions.hasResult = true;
+    Navigator.of(context).pop();
+    editorController.editOptions.callOnResult?.call(editorController.editOptions);
   }
 }
 ///==================================================================================================
