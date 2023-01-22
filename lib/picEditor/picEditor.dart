@@ -111,7 +111,7 @@ class PicEditor extends StatefulWidget {
 }
 ///==================================================================================================
 class PicEditorState extends State<PicEditor> {
-  var stateController = StateManagerController();
+  var stateController = AssistController();
   var editorController = PicEditorCtr();
   late ThemeData theme;
   late SliderThemeData sliderTheme;
@@ -162,8 +162,8 @@ class PicEditorState extends State<PicEditor> {
       ),
     );
 
-    return StateManager(
-      isMain: true,
+    return Assist(
+      isHead: true,
       controller: stateController,
       builder: (context, ctr, data) {
         return Scaffold(
@@ -181,10 +181,6 @@ class PicEditorState extends State<PicEditor> {
     stateController.dispose();
 
     super.dispose();
-  }
-
-  void update() {
-    setState(() {});
   }
 
   PreferredSizeWidget buildAppbar() {
@@ -214,11 +210,9 @@ class PicEditorState extends State<PicEditor> {
           endIndent: 8,
         ),
 
-        StateManager(
-            group: id$state$progress,
+        Assist(
+            groupId: id$state$progress,
             controller: stateController,
-            isMain: false,
-            isSubMain: true,
             builder: (ctx, ctr, data) {
             return Visibility(
               visible: !editorController.mustShowOperationProgress,
@@ -311,7 +305,7 @@ class PicEditorState extends State<PicEditor> {
 
         ///--- src image
         Positioned.fill(
-          child: StateManager(
+          child: Assist(
             id: id$state$image,
             controller: stateController,
             builder: (ctx, ctr, data) {
@@ -365,7 +359,7 @@ class PicEditorState extends State<PicEditor> {
           left: 18,
           right: 18,
           height: 60,
-          child: StateManager(
+          child: Assist(
             id: id$state$toolbar,
             controller: stateController,
             builder: (ctx, ctr, data) {
@@ -668,8 +662,8 @@ class PicEditorState extends State<PicEditor> {
 
         ///---- progress
         Positioned.fill(
-          child: StateManager(
-            group: id$state$progress,
+          child: Assist(
+            groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
               if (editorController.mustShowOperationProgress) {

@@ -1,166 +1,264 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-typedef StateBuilder<T> = Widget Function(BuildContext context, StateManagerController controller, dynamic sendData);
-typedef NotifyUpdate = void Function(dynamic sendData);
+typedef AssistBuilder = Widget Function(BuildContext context, AssistController controller, dynamic sendData);
+typedef OverlayBuilder = Widget Function(BuildContext context);
+typedef NotifierUpdate = void Function(dynamic sendData);
 ///===================================================================================================
-class StateManager extends StatefulWidget {
-  final StateManagerController? controller;
+class Assist extends StatefulWidget {
+  final AssistController? controller;
+  final bool? isHead;
   final String? id;
-  final String? group;
-  final bool isMain;
-  final bool isSubMain;
-  final StateBuilder builder;
+  final String? groupId;
+  final AssistObserver? observable;
+  final AssistBuilder builder;
 
-  StateManager({
+  Assist({
     Key? key,
     this.id,
-    this.group,
-    this.isMain = false,
-    this.isSubMain = false,
+    this.groupId,
     this.controller,
+    this.observable,
+    this.isHead,
     required this.builder,
-  }): assert(id != null || (isSubMain || isMain)), super(key : key);
+  }) : super(key: key);
+  //: assert(!(observable != null && controller != null), 'can not set observable and controller together'), super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _StateManagerState();
+    return _AssistState();
   }
 }
 ///===================================================================================================
-class _StateManagerState extends IStateX<StateManager> {
-  late StateManagerController _controller;
-  dynamic _data;
+abstract class IAssistState<w extends StatefulWidget> extends State<w> {
+  void update({dynamic data});
+  void disposeWidget();
+}
+///===================================================================================================
+class _AssistState extends IAssistState<Assist> {
+  late AssistController _controller;
+  OverlayBuilder? _overlayBuilder;
+  late ValueNotifier<int> overlayNotifier;
+  dynamic _lastData;
 
-  dynamic get lastData => _data;
+  dynamic get lastData => _lastData;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = widget.controller?? StateManagerController();
-    _controller._add(this);
+    overlayNotifier = ValueNotifier(0);
+    _controller = widget.controller?? AssistController();
+    _controller._add(this, widget.isHead);
   }
 
   @override
-  void didUpdateWidget(StateManager oldWidget) {
-    //_controller = oldWidget.controller;
+  void didUpdateWidget(Assist oldWidget) {
     super.didUpdateWidget(oldWidget);
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder.call(context, _controller, _data);
+    if(widget.controller != oldWidget.controller){
+      oldWidget.controller?.dispose();
+
+      if(widget.controller != null) {
+        _controller = widget.controller!;
+        _controller._add(this, widget.isHead);
+      }
+      else {
+        _controller = AssistController();
+        _controller._add(this, widget.isHead);
+      }
+    }
   }
 
   @override
   void dispose() {
+    overlayNotifier.dispose();
     _controller._widgetIsDisposed(this);
     super.dispose();
   }
 
-  void update(dynamic data) {
-    _data = data;
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.builder.call(context, _controller, _lastData),
+
+        ValueListenableBuilder(
+          valueListenable: overlayNotifier,
+          builder: (ctx, val, child){
+            if(_overlayBuilder == null) {
+              return SizedBox();
+            }
+
+            return _overlayBuilder!.call(ctx);
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  void update({dynamic data}) {
+    _lastData = data;
 
     if(mounted) {
       setState(() {});
     }
   }
 
+  @override
   void disposeWidget() {
     dispose();
   }
 }
 ///===================================================================================================
-abstract class IStateX<w extends StatefulWidget> extends State<w> {
-  void update(dynamic data);
-  void disposeWidget();
-}
-///===================================================================================================
-class StateManagerController {
-  static const state$normal = 'Normal';
-  static const state$error = 'Error';
-  static const state$emptyData = 'EmptyData';
-  static const state$loading = 'Loading';
-  static const state$serverNotResponse = 'ServerNotResponse';
-  static const state$netDisconnect = 'NetDisconnect';
-  static List<StateManagerController> _allControllers = [];
+class AssistController {
+  static const state$error = 'ErrorState';
+  static const state$emptyData = 'EmptyDataState';
+  static const state$loading = 'LoadingState';
+  static const state$serverNotResponse = 'ServerNotResponseState';
+  static const state$netDisconnect = 'NetDisconnectState';
 
-  List<StateXGroup> _groupHolderList = [];
-  List<_StateManagerState> _xStateList = [];
-  Set<NotifyUpdate> _notifyMainStateUpdate = {};
-  Set<NotifyUpdate> _notifySubMainStateUpdate = {};
-  StateDataManager _stateDataManager = StateDataManager();
-  _StateManagerState? _main;
-  _StateManagerState? _subMain;
-  var _objects = <String, dynamic>{};
-  String mainState = state$normal;
-  String subMainState = state$normal;
+  /// public list of all assists
+  static final List<AssistController> _allControllers = [];
 
-  StateManagerController(){
+  _AssistState? _headStateRef;
+  final List<_AssistState> _assistStateList = [];
+  final List<GroupOfAssist> _groupList = [];
+  final List<AssistObserver> _observerList = [];
+  final Set<NotifierUpdate> _notifyHeadStateUpdate = {};
+  final AssistStateManager _stateManager = AssistStateManager();
+  final KeyValueManager _shareDataManager = KeyValueManager();
+  final String _headSection = '_headSection';
+
+  AssistController(){
     _allControllers.add(this);
   }
 
-  void mainStateAndUpdate(String state, {data}){
-    mainState = state;
-    updateMain(stateData: data);
-  }
-
-  void subMainStateAndUpdate(String state, {data}){
-    subMainState = state;
-    updateSubMain(stateData: data);
-  }
-
-  void addMainStateListener(NotifyUpdate fn){
-    _notifyMainStateUpdate.add(fn);
-  }
-
-  void addSubMainStateListener(NotifyUpdate fn){
-    _notifySubMainStateUpdate.add(fn);
-  }
-
-  void _add(_StateManagerState state){
-    if(!_xStateList.contains(state)){
-      _xStateList.add(state);
+  void _add(_AssistState state, bool? isHead){
+    if(state.widget.id == null && state.widget.groupId == null && state.widget.observable == null){
+      if(isHead != null && !isHead /*&& _headStateRef == null*/){
+        throw Exception('this assist must be a head or have (an id or an groupId or an observer)');
+      }
     }
 
-    if(state.widget.isMain){
-      if(_main != null){
-        throw Exception("one 'isMain' can use");
+    if((isHead == null && _headStateRef == null) || (isHead != null && isHead)){
+      _headStateRef ??= state;
+    }
+
+    if(!_assistStateList.contains(state)){
+      if(state.widget.id != null){
+        final sameId = _getAssist(state.widget.id!);
+
+        if(sameId != null){
+          throw Exception('this id [${state.widget.id}] exist in Assist, use other');
+        }
       }
 
-      _main = state;
-    }
-    else if(state.widget.isSubMain){
-      if(_subMain != null){
-        throw Exception("one 'isSubMain' can use");
-      }
-
-      _subMain = state;
+      _assistStateList.add(state);
     }
 
-    bool addToGroup = false;
+    /// groupId
+    if(state.widget.groupId != null) {
+      var isAddToGroup = false;
 
-    if(state.widget.group != null) {
-      for (var g in _groupHolderList) {
-        if (g.groupId == state.widget.group) {
+      for (final g in _groupList) {
+        if (g.groupId == state.widget.groupId) {
           g.stateList.add(state);
-          addToGroup = true;
+          isAddToGroup = true;
           break;
         }
       }
 
-      if(!addToGroup){
-        _groupHolderList.add(StateXGroup.fill(state.widget.group!, state));
+      if(!isAddToGroup){
+        _groupList.add(GroupOfAssist.fill(state.widget.groupId!, state));
       }
+    }
+
+    /// observable
+    if(state.widget.observable != null){
+      addObservable(state.widget.observable!);
     }
   }
 
-  void updateMain({dynamic stateData, Duration? delay}) {
-    void fn(){
-      _main?.update(stateData);//?? _main!._data
+  void addHeadListener(NotifierUpdate fn){
+    if(!_notifyHeadStateUpdate.contains(fn)) {
+      _notifyHeadStateUpdate.add(fn);
+    }
+  }
 
-      for(var fn in _notifyMainStateUpdate){
+  void removeHeadListener(NotifierUpdate fn){
+    _notifyHeadStateUpdate.remove(fn);
+  }
+
+  void addObservable(AssistObserver observer){
+    observer._add(this);
+
+    if(!_observerList.contains(observer)){
+      _observerList.add(observer);
+    }
+  }
+
+  void removeObservable(AssistObserver observer){
+    observer._remove(this);
+    _observerList.remove(observer);
+  }
+
+  bool hasState(String state, {String? sectionId}){
+    return _stateManager.existState(sectionId?? _headSection, state);
+  }
+
+  bool hasStates(List<String> states, {String? sectionId}){
+    return _stateManager.existStates(sectionId?? _headSection, states);
+  }
+
+  void addState(String state, {String? sectionId}){
+    _stateManager.addState(sectionId?? _headSection, state);
+  }
+
+  void removeState(String state, {String? sectionId}){
+    _stateManager.removeState(sectionId?? _headSection, state);
+  }
+
+  void clearStates({String? sectionId}){
+    _stateManager.clearStates(sectionId?? _headSection);
+  }
+
+  void addStateAndUpdateHead(String state, {dynamic data}){
+    addState(state);
+    updateHead(stateData: data);
+  }
+
+  void removeStateAndUpdateHead(String state, {dynamic data}){
+    removeState(state);
+    updateHead(stateData: data);
+  }
+
+  void addStateAndUpdateUnHeads(String state, {dynamic stateData, Duration? delay}){
+    addState(state);
+    updateUnHeads(stateData: stateData, delay: delay);
+  }
+
+  void removeStateAndUpdateUnHead(String state, {dynamic stateData, Duration? delay}){
+    removeState(state);
+    updateUnHeads(stateData: stateData, delay: delay);
+  }
+
+  void addStateAndUpdateAssist(String state, String assistId, {String? sectionId, dynamic stateData, Duration? delay}){
+    addState(state, sectionId: sectionId);
+    updateAssist(assistId, stateData: stateData, delay: delay);
+  }
+
+  void removeStateAndUpdateAssist(String state, String assistId, {String? sectionId, dynamic stateData, Duration? delay}){
+    removeState(state, sectionId: sectionId);
+    updateAssist(assistId, stateData: stateData, delay: delay);
+  }
+
+  void updateHead({dynamic stateData, Duration? delay}) {
+    void fn(){
+      _headStateRef?.update(data: stateData);
+
+      for(final fn in _notifyHeadStateUpdate){
         try {
           fn.call(stateData);
         }
@@ -168,76 +266,64 @@ class StateManagerController {
       }
     }
 
-    if(delay == null)
+    if(delay == null) {
       fn();
-    else
+    }
+    else {
       Timer(delay, (){fn();});
+    }
   }
 
-  void updateSubMain({dynamic stateData, Duration? delay}) {
+  void updateAssist(String assistId, {dynamic stateData, Duration? delay}){
     void fn(){
-      _subMain?.update(stateData);
-
-      for(var fn in _notifySubMainStateUpdate){
-        try {
-          fn.call(stateData);
-        }
-        catch (e){}
-      }
+      _getAssist(assistId)?.update(data: stateData);
     }
 
-    if(delay == null)
+    if(delay == null) {
       fn();
-    else
-      Timer(delay, (){fn();});
-  }
-
-  void update(String id, {dynamic stateData, Duration? delay}){
-    void fn(){
-      for(var s in _xStateList){
-        if(s.widget.id == id){
-          s.update(stateData);
-        }
-      }
     }
-
-    if(delay == null)
-      fn();
-    else
+    else {
       Timer(delay, (){fn();});
-  }
-
-  void updateAll({dynamic stateData, Duration? delay}){
-    void fn(){
-      for(var s in _xStateList){
-        s.update(stateData);//?? s._data
-      }
     }
-
-    if(delay == null)
-      fn();
-    else
-      Timer(delay, (){fn();});
   }
 
   void updateGroup(String groupId, {dynamic stateData, Duration? delay}){
     void fn(){
-      var list = getGroup(groupId);
+      final list = getGroups(groupId);
 
-      for(var s in list){
-        var nS = s as _StateManagerState;
-        nS.update(stateData);//?? nS._data
+      for(final s in list){
+        final nS = s as _AssistState;
+        nS.update(data: stateData);
       }
     }
 
-    if(delay == null)
+    if(delay == null) {
       fn();
-    else
+    }
+    else {
       Timer(delay, (){fn();});
+    }
   }
 
-  Set<State> getGroup(String groupId){
-    for(var m in _groupHolderList){
+  void updateUnHeads({dynamic stateData, Duration? delay}){
+    void fn(){
+      for(final s in _assistStateList){
+        if(s != _headStateRef) {
+          s.update(data: stateData);
+        }
+      }
+    }
+
+    if(delay == null) {
+      fn();
+    }
+    else {
+      Timer(delay, (){fn();});
+    }
+  }
+
+  Set<State> getGroups(String groupId){
+    for(final m in _groupList){
       if(m.groupId == groupId){
         return m.stateList;
       }
@@ -245,46 +331,56 @@ class StateManagerController {
 
     return {};
   }
-  //..............................................................................
-  void setObject(String key, dynamic val){
-    _objects[key] = val;
+
+  _AssistState? _getAssist(String assistId){
+    for(final s in _assistStateList){
+      if(s.widget.id == assistId){
+        return s;
+      }
+    }
+
+    return null;
   }
 
-  void setObjectIfNotExist(String key, dynamic val){
-    if(_objects[key] == null)
-      _objects[key] = val;
+  void setOverlay(OverlayBuilder? overlay, {String? assistId}){
+    if(_headStateRef == null){
+      return;
+    }
+
+    if(assistId == null) {
+      _headStateRef!._overlayBuilder = overlay;
+      _headStateRef!.overlayNotifier.value++;
+    }
+    else {
+      _getAssist(assistId)?._overlayBuilder = overlay;
+      _getAssist(assistId)?.overlayNotifier.value++;
+    }
+  }
+  ///............. shareDataManager .................................................................
+  void setKeyValue(String key, dynamic value){
+    _shareDataManager.set(key, value);
   }
 
-  T object<T>(String key){
-    return _objects[key];
+  void setValueIfNotExist(String key, dynamic val){
+    if(!existKey(key)) {
+      setKeyValue(key, val);
+    }
   }
 
-  T objectOrDefault<T>(String key, T defaultVal){
-    return _objects[key]?? defaultVal;
+  T getValue<T>(String key){
+    return _shareDataManager.getValue(key);
   }
 
-  bool existObject(String key){
-    return _objects[key] != null;
+  T getValueOr<T>(String key, T defaultVal){
+    return _shareDataManager.getValue(key)?? defaultVal;
   }
 
-  void clearObjects(){
-    return _objects.clear();
-  }
-  //..............................................................................
-  void setStateData(String key, dynamic value){
-    _stateDataManager.set(key, value);
+  bool existKey(String key){
+    return _shareDataManager.existKey(key);
   }
 
-  T stateData<T>(String key){
-    return _stateDataManager.state(key);
-  }
-
-  T stateDataOrDefault<T>(String key, T defaultVal){
-    return _stateDataManager.state(key)?? defaultVal;
-  }
-
-  bool existStateData(String key){
-    return _stateDataManager.existKey(key);
+  void clearKeyValues(){
+    return _shareDataManager.clear();
   }
   //..............................................................................
   void dispose() {
@@ -296,54 +392,48 @@ class StateManagerController {
       }
     }*/
 
-    _xStateList.clear();
-    _objects.clear();
-    _groupHolderList.clear();
-    _stateDataManager.clear();
-    _notifyMainStateUpdate.clear();
-    _notifySubMainStateUpdate.clear();
-    _main = null;
-    _subMain = null;
+    _assistStateList.clear();
+    _groupList.clear();
+    _shareDataManager.clear();
+    _notifyHeadStateUpdate.clear();
+
+    for(final k in _observerList){
+      k._remove(this);
+    }
+
+    _observerList.clear();
+    _headStateRef = null;
   }
 
-  void _widgetIsDisposed(IStateX state){
-    List temp = [];
+  void _widgetIsDisposed(IAssistState state){
+    final temp = [];
 
-    for(var s in _xStateList){
+    for(final s in _assistStateList){
       if(s == state){
         temp.add(s);
       }
     }
 
-    for(var x in temp){
-      _xStateList.remove(x);
+    for(final x in temp){
+      _assistStateList.remove(x);
+    }
+
+    if(state == _headStateRef){
+      _headStateRef = null;
     }
 
     temp.clear();
 
-    /// means this controller is empty and no control any.
-    if(_xStateList.isEmpty){
-      _allControllers.remove(this);
-      _groupHolderList.clear();
-      _objects.clear();
-      _stateDataManager.clear();
-      _notifyMainStateUpdate.clear();
-      _notifySubMainStateUpdate.clear();
-      _main = null;
-      _subMain = null;
-      return;
-    }
-
-    List gTemp = [];
-    for(var g in _groupHolderList){
-      for(var s in g.stateList){
+    final gTemp = [];
+    for(final g in _groupList){
+      for(final s in g.stateList){
         if(s == state) {
           temp.add(s);
           break;
         }
       }
 
-      for(var x in temp){
+      for(final x in temp){
         g.stateList.remove(x);
       }
 
@@ -354,65 +444,94 @@ class StateManagerController {
       }
     }
 
-    for(var x in gTemp){
-      _groupHolderList.remove(x);
+    for(final x in gTemp){
+      _groupList.remove(x);
+    }
+
+    /// means this controller is empty and no control any Assist.
+    if(_assistStateList.isEmpty){
+      dispose();
+    }
+  }
+  ///........... commons ...................................................................
+  /// if return false: stop
+  static void _touchAncestorsToRoot(BuildContext context, bool Function(Element elem) onParent) {
+    final e = context as Element;
+
+    e.visitAncestorElements((element) {
+      return onParent(element);
+    });
+  }
+
+  static void commonUpdateByClass(Type classType, {dynamic stateData, Duration? delay}){
+    for(final c in _allControllers){
+      if(c._headStateRef != null){
+        _touchAncestorsToRoot(c._headStateRef!.context, (element){
+          if(element.widget.runtimeType == classType){
+            c.updateHead(stateData: stateData, delay: delay);
+            return false;
+          }
+
+          return true;
+        });
+      }
     }
   }
 
-  static void globalUpdateMains({dynamic stateData, Duration? delay}){
-    for(var c in _allControllers){
-      c.updateMain(stateData: stateData, delay: delay);
+  static void commonUpdateAllHeads({dynamic stateData, Duration? delay}){
+    for(final c in _allControllers){
+      c.updateHead(stateData: stateData, delay: delay);
     }
   }
 
-  static void globalUpdate(String id, {dynamic stateData, Duration? delay}){
-    for(var c in _allControllers){
-      c.update(id, stateData: stateData, delay: delay);
+  static void commonUpdateAssist(String assistId, {dynamic stateData, Duration? delay}){
+    for(final c in _allControllers){
+      c.updateAssist(assistId, stateData: stateData, delay: delay);
     }
   }
 
-  static void globalUpdateAll({dynamic stateData, Duration? delay}){
-    for(var c in _allControllers){
-      c.updateAll(stateData: stateData, delay: delay);
-    }
-  }
-
-  static void globalUpdateGroup(String groupId, {dynamic stateData, Duration? delay}){
-    for(var c in _allControllers){
+  static void commonUpdateGroup(String groupId, {dynamic stateData, Duration? delay}){
+    for(final c in _allControllers){
       c.updateGroup(groupId, stateData: stateData, delay: delay);
+    }
+  }
+
+  static void globalUpdateUnHeads({dynamic stateData, Duration? delay}){
+    for(final c in _allControllers){
+      c.updateUnHeads(stateData: stateData, delay: delay);
     }
   }
 }
 ///===================================================================================================
-class StateXGroup {
+class GroupOfAssist {
   late String groupId;
-  Set<IStateX> stateList = {};
+  final stateList = <IAssistState>{};
 
-  StateXGroup();
+  GroupOfAssist();
 
-  StateXGroup.fill(String id, IStateX state){
-    this.groupId = id;
+  GroupOfAssist.fill(String id, IAssistState state){
+    groupId = id;
     stateList.add(state);
   }
 }
 ///===================================================================================================
-class StateDataManager {
-  Set<MapEntry> _stateList = {};
+class KeyValueManager<T> {
+  final Set<MapEntry> _objList = {};
 
-  StateDataManager();
+  KeyValueManager();
 
-  StateDataManager.add(String key, dynamic value){
-    _stateList.add(MapEntry(key, value));
+  KeyValueManager.add(String key, T value){
+    _objList.add(MapEntry(key, value));
   }
 
-  void set(String key, dynamic value){
+  void set(String key, T value){
     remove(key);
-    _stateList.add(MapEntry(key, value));
+    _objList.add(MapEntry(key, value));
   }
 
-  bool setIfAbsent(String key, dynamic value){
+  bool setIfAbsent(String key, T value){
     if(!existKey(key)) {
-      _stateList.add(MapEntry(key, value));
+      _objList.add(MapEntry(key, value));
       return true;
     }
 
@@ -420,7 +539,7 @@ class StateDataManager {
   }
 
   bool existKey(String key){
-    for(var e in _stateList){
+    for(final e in _objList){
       if(e.key == key){
         return true;
       }
@@ -430,9 +549,9 @@ class StateDataManager {
   }
 
   bool remove(String key){
-    var find;
+    MapEntry? find;
 
-    for(var e in _stateList){
+    for(final e in _objList){
       if(e.key == key){
         find = e;
         break;
@@ -440,14 +559,14 @@ class StateDataManager {
     }
 
     if(find != null){
-      return _stateList.remove(find);
+      return _objList.remove(find);
     }
 
     return false;
   }
 
-  dynamic state(String key){
-    for(var e in _stateList){
+  dynamic getValue(String key){
+    for(final e in _objList){
       if(e.key == key){
         return e.value;
       }
@@ -457,6 +576,119 @@ class StateDataManager {
   }
 
   void clear(){
-    _stateList.clear();
+    _objList.clear();
+  }
+}
+///===================================================================================================
+class AssistStateManager {
+  final Map<String, Set<String>> _objList = {};
+
+  AssistStateManager();
+
+  void addState(String section, String state){
+    if(existSection(section)){
+      getStates(section).add(state);
+    }
+    else {
+      _objList[section] = {state};
+    }
+  }
+
+  void removeState(String section, String state){
+    if(existSection(section)){
+      getStates(section).remove(state);
+    }
+  }
+
+  bool existState(String section, String state){
+    return getStates(section).contains(state);
+  }
+
+  bool existStates(String section, List<String> states){
+    final sectionList = getStates(section);
+
+    for(final s in states){
+      if(!sectionList.contains(s)){
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool existSection(String section){
+    for(final e in _objList.entries){
+      if(e.key == section){
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool removeSection(String section){
+    _objList.removeWhere((k, v) => k == section);
+
+    return true;
+  }
+
+  Set<String> getStates(String section){
+    for(final e in _objList.entries){
+      if(e.key == section){
+        return e.value;
+      }
+    }
+
+    return {};
+  }
+
+  void clearStates(String section){
+    getStates(section).clear();
+  }
+
+  void clearAll(){
+    _objList.clear();
+  }
+}
+///===================================================================================================
+class AssistObserver<T> {
+  T? _value;
+  final List<AssistController> _assistController = [];
+
+  AssistObserver([T? value]) :_value = value;
+
+  T? get value => _value;
+
+  void changeValue(T? value){
+    _value = value;
+  }
+
+  void notify(){
+    for(final assist in _assistController){
+      assist.updateUnHeads();
+    }
+  }
+
+  void changeAndNotify(T? value){
+    _value = value;
+    notify();
+  }
+
+  bool hasListeners(){
+    return _assistController.isNotEmpty;
+  }
+
+  List<AssistController> get listeners {
+    return _assistController;
+  }
+
+  void _add(AssistController controller){
+    if(!_assistController.contains(controller)){
+      _assistController.add(controller);
+    }
+  }
+
+  void _remove(AssistController controller){
+    _assistController.remove(controller);
   }
 }

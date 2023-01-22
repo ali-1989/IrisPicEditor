@@ -1,6 +1,6 @@
 name: iris_pic_editor
 description: A image editor package.
-version: 0.0.5+8
+version: 0.0.6+9
 homepage: https://iris.ir
 
 environment:

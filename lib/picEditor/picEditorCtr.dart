@@ -64,7 +64,7 @@ class PicEditorCtr {
       }
 
       mustShowLoadingProgress = false;
-      state.stateController.update(state.id$state$image);
+      state.stateController.updateAssist(state.id$state$image);
     });
   }
 
@@ -85,14 +85,14 @@ class PicEditorCtr {
       editorState.cropAreaTouchHandler.updateTouch(editorState.currentTouchPosition!);
     }
 
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void onPanEnd(PointerEvent event) {
     editorState.oldTouchPosition = null;
     editorState.currentTouchPosition = null;
 
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void showProgress() {
@@ -114,7 +114,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.CROP;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void cropImage() async {
@@ -122,7 +122,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
 
     Rect rect = getCropRect();
 
@@ -138,7 +138,7 @@ class PicEditorCtr {
     editorState.cropArea.invalidateRect();
 
     mustShowOperationProgress = false;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   Rect getCropRect() {
@@ -185,14 +185,14 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.ROTATE;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void rotateToRight() async {
     if (!canSelectOperator()) return;
 
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(RotateOption(90));
@@ -206,7 +206,7 @@ class PicEditorCtr {
   state.editOptions.imageBytes = await PicEditorState.imageToBytes(state.editOptions._image);*/
 
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
 
   void rotateToLeft() async {
@@ -214,7 +214,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(RotateOption(-90));
@@ -225,7 +225,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
   ///==================================================================================================
   void flipAction() async {
@@ -233,7 +233,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.FLIP;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void flipHImage() async {
@@ -241,7 +241,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(FlipOption(horizontal: true, vertical: false));
@@ -252,7 +252,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
 
   void flipVImage() async {
@@ -260,7 +260,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(FlipOption(vertical: true, horizontal: false));
@@ -271,7 +271,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
   ///==================================================================================================
   void brightnessAction() async {
@@ -279,7 +279,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.BRIGHTNESS;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void addBrightness() async {
@@ -294,7 +294,7 @@ class PicEditorCtr {
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
 
   void minusBrightness() async {
@@ -310,7 +310,7 @@ class PicEditorCtr {
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
   ///==================================================================================================
   void contrastAction() async {
@@ -318,7 +318,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.CONTRAST;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void addContrast() async {
@@ -333,7 +333,7 @@ class PicEditorCtr {
 
     contrastValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
 
   void minusContrast() async {
@@ -348,7 +348,7 @@ class PicEditorCtr {
 
     contrastValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
   ///==================================================================================================
   void colorAction() async {
@@ -356,7 +356,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.COLOR;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
 
   void addColor() async {
@@ -372,7 +372,7 @@ class PicEditorCtr {
 
     colorValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
 
   void minusColor() async {
@@ -387,7 +387,7 @@ class PicEditorCtr {
 
     colorValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateAssist(state.id$state$progress);
   }
   ///==================================================================================================
   void drawAction(PicEditorState state) async {
@@ -395,7 +395,7 @@ class PicEditorCtr {
       return;
 
     currentAction = EditorActions.DRAW;
-    state.stateController.updateMain();
+    state.stateController.updateHead();
   }
   ///==================================================================================================
   bool isNearHue(Color base, Color dif, {num deg = 10}) {
