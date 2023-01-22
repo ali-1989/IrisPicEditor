@@ -682,19 +682,19 @@ class PicEditorState extends State<PicEditor> {
 
   Widget generateNavBarButton(IconData icon, EditorActions actions, Function() action) {
     bool isActive = editorController.currentAction == actions;
-    Color color = editorController.editOptions.iconsColor;
+    Color itemColor = editorController.editOptions.iconsColor;
 
-    if (editorController.isNearHue(theme.appBarTheme.backgroundColor!, color)) {
-      color = editorController.inverseColor(color);
+    if (editorController.isNearHue(theme.appBarTheme.backgroundColor!, itemColor)) {
+      itemColor = editorController.inverseColor(itemColor);
     }
 
-    color = isActive ? color : color.withAlpha(130);
+    itemColor = isActive ? itemColor : itemColor.withAlpha(130);
 
     return IconTextBtn(
         width: 50,
-        backColor: theme.appBarTheme.backgroundColor!,
-        textColor: color,
-        iconColor: color,
+        backColor: theme.primaryColor,
+        textColor: itemColor,
+        iconColor: itemColor,
         icon: icon,
         title: editorController.editOptions.showButtonText
             ? actions.toString().replaceFirst(RegExp(r'EditorActions.'), '').substring(0, 4)
