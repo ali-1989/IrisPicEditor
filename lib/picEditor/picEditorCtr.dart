@@ -181,32 +181,34 @@ class PicEditorCtr {
   }
   ///==================================================================================================
   void rotateAction() async {
-    if (!canSelectOperator())
+    if (!canSelectOperator()) {
       return;
+    }
 
     currentAction = EditorActions.ROTATE;
     state.stateController.updateHead();
   }
 
   void rotateToRight() async {
-    if (!canSelectOperator()) return;
+    if (!canSelectOperator()) {
+      return;
+    }
 
     mustShowOperationProgress = true;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(RotateOption(90));
     option.outputFormat = outputFormat;
 
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    //editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
+    //editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     /*state.editOptions._image = await ImageHelper.rotateByCanvas(state.editOptions._image, 90);
   state.editOptions.imageBytes = await PicEditorState.imageToBytes(state.editOptions._image);*/
 
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   void rotateToLeft() async {
@@ -214,7 +216,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(RotateOption(-90));
@@ -225,7 +227,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
   ///==================================================================================================
   void flipAction() async {
@@ -241,7 +243,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(FlipOption(horizontal: true, vertical: false));
@@ -252,7 +254,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   void flipVImage() async {
@@ -260,7 +262,7 @@ class PicEditorCtr {
       return;
 
     mustShowOperationProgress = true;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
 
     ImageEditorOption option = ImageEditorOption();
     option.addOption(FlipOption(vertical: true, horizontal: false));
@@ -271,7 +273,7 @@ class PicEditorCtr {
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
   ///==================================================================================================
   void brightnessAction() async {
@@ -294,7 +296,7 @@ class PicEditorCtr {
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   void minusBrightness() async {
@@ -310,7 +312,7 @@ class PicEditorCtr {
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
   ///==================================================================================================
   void contrastAction() async {
@@ -333,7 +335,7 @@ class PicEditorCtr {
 
     contrastValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   void minusContrast() async {
@@ -348,7 +350,7 @@ class PicEditorCtr {
 
     contrastValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
   ///==================================================================================================
   void colorAction() async {
@@ -372,7 +374,7 @@ class PicEditorCtr {
 
     colorValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   void minusColor() async {
@@ -387,7 +389,7 @@ class PicEditorCtr {
 
     colorValue = 0;
     mustShowOperationProgress = false;
-    state.stateController.updateAssist(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
   ///==================================================================================================
   void drawAction(PicEditorState state) async {

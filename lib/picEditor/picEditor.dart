@@ -365,6 +365,7 @@ class PicEditorState extends State<PicEditor> {
             controller: stateController,
             builder: (ctx, ctr, data) {
               switch (editorController.currentAction) {
+              ///---- CROP
                 case EditorActions.CROP:
                   return Align(
                       alignment: Alignment.bottomRight,
@@ -374,7 +375,7 @@ class PicEditorState extends State<PicEditor> {
                         child: Material(
                             clipBehavior: Clip.antiAlias,
                             shape: CircleBorder(),
-                            color: theme.backgroundColor,
+                            color: theme.primaryColor,
                             type: MaterialType.button,
                             child: InkWell(
                                 onTap: () {
@@ -397,12 +398,11 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    print('======== ro');
-                                    //editorController.rotateToRight();
+                                    editorController.rotateToRight();
                                   },
                                   splashColor: Colors.white,
                                   child: Icon(
@@ -418,7 +418,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -442,7 +442,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -462,7 +462,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -488,7 +488,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -544,7 +544,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -570,7 +570,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -600,7 +600,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -626,7 +626,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
@@ -668,7 +668,7 @@ class PicEditorState extends State<PicEditor> {
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              print('========================= 2  ${editorController.mustShowOperationProgress}');
+              print('========================= Progress  ${editorController.mustShowOperationProgress}');
               if (editorController.mustShowOperationProgress) {
                 return Center(
                     child: SizedBox(
