@@ -186,7 +186,7 @@ class PicEditorCtr {
     }
 
     currentAction = EditorActions.ROTATE;
-    //state.stateController.updateHead();
+    state.stateController.updateHead();
   }
 
   void rotateToRight() async {

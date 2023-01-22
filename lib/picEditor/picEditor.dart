@@ -190,7 +190,6 @@ class PicEditorState extends State<PicEditor> {
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              print('=========================> 1  ${!(editorController.mustShowOperationProgress || editorController.mustShowLoadingProgress)}');
               return Visibility(
                 visible: !(editorController.mustShowOperationProgress || editorController.mustShowLoadingProgress),
                 child: Material(
@@ -664,7 +663,6 @@ class PicEditorState extends State<PicEditor> {
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              print('========================= Progress  ${editorController.mustShowOperationProgress}');
               if (editorController.mustShowOperationProgress) {
                 return Center(
                     child: SizedBox(
