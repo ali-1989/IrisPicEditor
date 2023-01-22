@@ -201,8 +201,8 @@ class PicEditorCtr {
     option.addOption(RotateOption(90));
     option.outputFormat = outputFormat;
 
-    //editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    //editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     /*state.editOptions._image = await ImageHelper.rotateByCanvas(state.editOptions._image, 90);
   state.editOptions.imageBytes = await PicEditorState.imageToBytes(state.editOptions._image);*/
@@ -222,8 +222,7 @@ class PicEditorCtr {
     option.addOption(RotateOption(-90));
     option.outputFormat = outputFormat;
 
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
@@ -249,8 +248,7 @@ class PicEditorCtr {
     option.addOption(FlipOption(horizontal: true, vertical: false));
     option.outputFormat = outputFormat;
 
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
@@ -268,8 +266,7 @@ class PicEditorCtr {
     option.addOption(FlipOption(vertical: true, horizontal: false));
     option.outputFormat = outputFormat;
 
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     mustShowOperationProgress = false;
@@ -290,8 +287,7 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1));
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     brightnessValue = 0;
@@ -305,10 +301,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1));
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image =
-    await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
@@ -329,8 +323,7 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1 + contrastValue));
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     contrastValue = 0;
@@ -344,8 +337,7 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1 - contrastValue));
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     contrastValue = 0;
@@ -367,10 +359,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1));
     option.addOption(ColorOption.saturation(1 + colorValue));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image =
-    await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     colorValue = 0;
     mustShowOperationProgress = false;
@@ -383,8 +373,7 @@ class PicEditorCtr {
     option.addOption(ColorOption.contrast(1));
     option.addOption(ColorOption.saturation(1 - colorValue));
     option.outputFormat = outputFormat;
-    editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
+    editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
     editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
 
     colorValue = 0;
