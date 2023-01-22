@@ -188,6 +188,38 @@ class PicEditorState extends State<PicEditor> {
       automaticallyImplyLeading: false,
       backgroundColor: theme.primaryColor,
       actions: <Widget>[
+        Assist(
+            groupId: id$state$progress,
+            controller: stateController,
+            builder: (ctx, ctr, data) {
+              print('========================= 1  ${editorController.mustShowOperationProgress}');
+              return Visibility(
+                visible: !editorController.mustShowOperationProgress,
+                child: Material(
+                  clipBehavior: Clip.antiAlias,
+                  type: MaterialType.circle,
+                  color: Colors.transparent,
+                  child: IconButton(
+                    iconSize: 20,
+                    onPressed: () {
+                      onOkClick();
+                    },
+                    splashColor: Colors.white,
+                    icon: Icon(
+                      Icons.check,
+                      color: theme.appBarTheme.iconTheme!.color,
+                    ),
+                  ),
+                ),
+              );
+            }
+        ),
+
+        VerticalDivider(
+          indent: 8,
+          endIndent: 8,
+        ),
+
         Material(
           clipBehavior: Clip.antiAlias,
           type: MaterialType.circle,
@@ -203,37 +235,6 @@ class PicEditorState extends State<PicEditor> {
               color: theme.appBarTheme.iconTheme!.color,
             ),
           ),
-        ),
-
-        VerticalDivider(
-          indent: 8,
-          endIndent: 8,
-        ),
-
-        Assist(
-            groupId: id$state$progress,
-            controller: stateController,
-            builder: (ctx, ctr, data) {
-            return Visibility(
-              visible: !editorController.mustShowOperationProgress,
-              child: Material(
-                clipBehavior: Clip.antiAlias,
-                type: MaterialType.circle,
-                color: Colors.transparent,
-                child: IconButton(
-                  iconSize: 20,
-                  onPressed: () {
-                    onOkClick();
-                  },
-                  splashColor: Colors.white,
-                  icon: Icon(
-                    Icons.check,
-                    color: theme.appBarTheme.iconTheme!.color,
-                  ),
-                ),
-              ),
-            );
-          }
         ),
       ],
     );
@@ -400,7 +401,8 @@ class PicEditorState extends State<PicEditor> {
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
-                                    editorController.rotateToRight();
+                                    print('======== ro');
+                                    //editorController.rotateToRight();
                                   },
                                   splashColor: Colors.white,
                                   child: Icon(
@@ -666,6 +668,7 @@ class PicEditorState extends State<PicEditor> {
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
+              print('========================= 2  ${editorController.mustShowOperationProgress}');
               if (editorController.mustShowOperationProgress) {
                 return Center(
                     child: SizedBox(
