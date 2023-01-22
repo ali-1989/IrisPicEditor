@@ -20,17 +20,10 @@ import 'package:iris_pic_editor/picEditor/picEditorCtr.dart';
 
 class PicEditor extends StatefulWidget {
   final EditOptions editOptions;
-  final ThemeData? theme;
-  final MaterialColor? primaryColor;
-  final Color? secondaryColor;
-  final Color? backgroundColor;
+
 
   PicEditor(
   this.editOptions, {
-    this.theme,
-    this.primaryColor,
-    this.secondaryColor,
-    this.backgroundColor,
         Key? key,
   }): super(key: key);
 
@@ -139,13 +132,13 @@ class PicEditorState extends State<PicEditor> {
   Widget build(BuildContext context) {
     editorController.onBuild();
 
-    theme = widget.theme?? Theme.of(context);
+    theme = widget.editOptions.theme?? Theme.of(context);
 
-    if(widget.primaryColor != null){
+    if(widget.editOptions.primaryColor != null){
       theme = theme.copyWith(
-          primaryColor: widget.primaryColor,
-          backgroundColor: widget.backgroundColor,
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: widget.primaryColor!, accentColor: widget.secondaryColor, backgroundColor: widget.backgroundColor)
+          primaryColor: widget.editOptions.primaryColor,
+          backgroundColor: widget.editOptions.backgroundColor,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: widget.editOptions.primaryColor!, accentColor: widget.editOptions.secondaryColor, backgroundColor: widget.editOptions.backgroundColor)
       );
     }
 

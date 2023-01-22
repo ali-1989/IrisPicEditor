@@ -10,6 +10,9 @@ class EditOptions {
   String? imagePath;
   Uint8List? imageBytes;
   ui.Image? image;
+  ThemeData? theme;
+  MaterialColor? primaryColor;
+  Color? secondaryColor;
   Color backgroundColor = Colors.black;
   Color iconsColor = Colors.white;
   Color cropBoxColor = Colors.white30;
