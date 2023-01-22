@@ -190,6 +190,7 @@ class PicEditorState extends State<PicEditor> {
   PreferredSizeWidget buildAppbar() {
     return AppBar(
       automaticallyImplyLeading: false,
+      backgroundColor: theme.primaryColor,
       actions: <Widget>[
         Material(
           clipBehavior: Clip.antiAlias,
@@ -213,24 +214,30 @@ class PicEditorState extends State<PicEditor> {
           endIndent: 8,
         ),
 
-        Visibility(
-          visible: !editorController.mustShowOperationProgress,
-          child: Material(
-            clipBehavior: Clip.antiAlias,
-            type: MaterialType.circle,
-            color: Colors.transparent,
-            child: IconButton(
-              iconSize: 20,
-              onPressed: () {
-                onOkClick();
-              },
-              splashColor: Colors.white,
-              icon: Icon(
-                Icons.check,
-                color: theme.appBarTheme.iconTheme!.color,
+        StateManager(
+            group: id$state$progress,
+            controller: stateController,
+            builder: (ctx, ctr, data) {
+            return Visibility(
+              visible: !editorController.mustShowOperationProgress,
+              child: Material(
+                clipBehavior: Clip.antiAlias,
+                type: MaterialType.circle,
+                color: Colors.transparent,
+                child: IconButton(
+                  iconSize: 20,
+                  onPressed: () {
+                    onOkClick();
+                  },
+                  splashColor: Colors.white,
+                  icon: Icon(
+                    Icons.check,
+                    color: theme.appBarTheme.iconTheme!.color,
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          }
         ),
       ],
     );
@@ -241,7 +248,7 @@ class PicEditorState extends State<PicEditor> {
       width: double.infinity,
       height: 60,
       child: ColoredBox(
-        color: theme.appBarTheme.backgroundColor!,
+        color: theme.primaryColor, //theme.appBarTheme.backgroundColor
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Directionality(
@@ -660,7 +667,7 @@ class PicEditorState extends State<PicEditor> {
         ///---- progress
         Positioned.fill(
           child: StateManager(
-            id: id$state$progress,
+            group: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
               if (editorController.mustShowOperationProgress) {
@@ -692,7 +699,7 @@ class PicEditorState extends State<PicEditor> {
 
     return IconTextBtn(
         width: 50,
-        backColor: theme.primaryColor,
+        backColor: Colors.transparent, //theme.primaryColor
         textColor: itemColor,
         iconColor: itemColor,
         icon: icon,

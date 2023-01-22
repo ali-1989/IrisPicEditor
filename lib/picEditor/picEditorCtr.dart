@@ -97,7 +97,7 @@ class PicEditorCtr {
 
   void showProgress() {
     mustShowOperationProgress = true;
-    state.stateController.update(state.id$state$progress);
+    state.stateController.updateGroup(state.id$state$progress);
   }
 
   bool canSelectOperator() {
