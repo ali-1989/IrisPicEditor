@@ -217,6 +217,8 @@ class PicEditorState extends State<PicEditor> {
         StateManager(
             group: id$state$progress,
             controller: stateController,
+            isMain: false,
+            isSubMain: true,
             builder: (ctx, ctr, data) {
             return Visibility(
               visible: !editorController.mustShowOperationProgress,
