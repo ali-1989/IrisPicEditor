@@ -117,8 +117,6 @@ class PicEditorState extends State<PicEditor> {
   late SliderThemeData sliderTheme;
   final id$state$toolbar = 'toolBarRefresher';
   final id$state$progress = 'progressRefresher';
-  final id$state$image = 'imageHolderRefresher';
-
 
   PicEditorState();
 
@@ -192,9 +190,9 @@ class PicEditorState extends State<PicEditor> {
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
-              print('========================= 1  ${editorController.mustShowOperationProgress}');
+              print('=========================> 1  ${!(editorController.mustShowOperationProgress || editorController.mustShowLoadingProgress)}');
               return Visibility(
-                visible: !editorController.mustShowOperationProgress,
+                visible: !(editorController.mustShowOperationProgress || editorController.mustShowLoadingProgress),
                 child: Material(
                   clipBehavior: Clip.antiAlias,
                   type: MaterialType.circle,
@@ -306,10 +304,8 @@ class PicEditorState extends State<PicEditor> {
 
         ///--- src image
         Positioned.fill(
-          child: Assist(
-            id: id$state$image,
-            controller: stateController,
-            builder: (ctx, ctr, data) {
+          child: Builder(
+            builder: (ctx) {
               if (editorController.mustShowLoadingProgress) {
                 return Center(
                     child: SizedBox(
@@ -514,7 +510,7 @@ class PicEditorState extends State<PicEditor> {
                           child: Material(
                               clipBehavior: Clip.antiAlias,
                               shape: CircleBorder(),
-                              color: theme.backgroundColor,
+                              color: theme.primaryColor,
                               type: MaterialType.button,
                               child: InkWell(
                                   onTap: () {
