@@ -219,10 +219,7 @@ class PicEditorState extends State<PicEditor> {
             }
         ),
 
-        VerticalDivider(
-          indent: 8,
-          endIndent: 8,
-        ),
+        SizedBox(width: 5),
 
         Material(
           clipBehavior: Clip.antiAlias,

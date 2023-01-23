@@ -69,7 +69,7 @@
     },
     {
       "name": "image",
-      "rootUri": "file:///E:/FlutterProjects/BigBango/.fvm/flutter_sdk/.pub-cache/hosted/pub.dartlang.org/image-4.0.10",
+      "rootUri": "file:///E:/FlutterProjects/BigBango/.fvm/flutter_sdk/.pub-cache/hosted/pub.dartlang.org/image-4.0.11",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -212,7 +212,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-01-22T14:20:08.685439Z",
+  "generated": "2023-01-23T08:21:54.414975Z",
   "generator": "pub",
   "generatorVersion": "2.18.2"
 }
