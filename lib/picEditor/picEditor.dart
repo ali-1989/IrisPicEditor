@@ -117,6 +117,7 @@ class PicEditorState extends State<PicEditor> {
   late SliderThemeData sliderTheme;
   final id$state$toolbar = 'toolBarRefresher';
   final id$state$progress = 'progressRefresher';
+  late Color itemsColor;
 
   PicEditorState();
 
@@ -156,9 +157,15 @@ class PicEditorState extends State<PicEditor> {
       valueIndicatorColor: theme.primaryColor,
       showValueIndicator: ShowValueIndicator.always,
       valueIndicatorTextStyle: TextStyle(
-        color: Colors.white,
+        color: theme.colorScheme.secondary,
       ),
     );
+
+    itemsColor = editorController.editOptions.iconsColor;
+
+    if (editorController.isNearHue(theme.primaryColor, itemsColor)) {
+      itemsColor = editorController.inverseColor(itemsColor);
+    }
 
     return Assist(
       isHead: true,
@@ -201,10 +208,10 @@ class PicEditorState extends State<PicEditor> {
                     onPressed: () {
                       onOkClick();
                     },
-                    splashColor: Colors.white,
+                    splashColor: Colors.grey,
                     icon: Icon(
                       Icons.check,
-                      color: theme.appBarTheme.iconTheme!.color,
+                      color: itemsColor,
                     ),
                   ),
                 ),
@@ -226,10 +233,10 @@ class PicEditorState extends State<PicEditor> {
             onPressed: () {
               onCancelClick();
             },
-            splashColor: Colors.white,
+            splashColor: Colors.grey,
             icon: Icon(
               Icons.clear,
-              color: theme.appBarTheme.iconTheme!.color,
+              color: itemsColor,
             ),
           ),
         ),
@@ -376,9 +383,10 @@ class PicEditorState extends State<PicEditor> {
                                 onTap: () {
                                   editorController.cropImage();
                                 },
-                                splashColor: Colors.white,
+                                splashColor: Colors.grey,
                                 child: Icon(
                                   Icons.crop,
+                                  color: itemsColor,
                                 ))),
                       ));
 
@@ -399,9 +407,10 @@ class PicEditorState extends State<PicEditor> {
                                   onTap: () {
                                     editorController.rotateToRight();
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.rotate_right,
+                                    color: itemsColor,
                                   ))),
                         ),
                         SizedBox(
@@ -419,9 +428,10 @@ class PicEditorState extends State<PicEditor> {
                                   onTap: () {
                                     editorController.rotateToLeft();
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.rotate_left,
+                                    color: itemsColor,
                                   ))),
                         ),
                       ]));
@@ -443,9 +453,10 @@ class PicEditorState extends State<PicEditor> {
                                   onTap: () {
                                     editorController.flipHImage();
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.flip,
+                                    color: itemsColor,
                                   ))),
                         ),
                         SizedBox(
@@ -463,11 +474,12 @@ class PicEditorState extends State<PicEditor> {
                                   onTap: () {
                                     editorController.flipVImage();
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Transform.rotate(
                                       angle: 1.58,
                                       child: Icon(
                                         Icons.flip,
+                                        color: itemsColor,
                                       )))),
                         ),
                       ]));
@@ -495,9 +507,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.addBrightness();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.add,
+                                    color: itemsColor,
                                   ))),
                         ),
                         SizedBox(
@@ -521,9 +534,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.minusBrightness();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.remove,
+                                    color: itemsColor,
                                   ))),
                         ),
                       ]));
@@ -551,9 +565,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.addContrast();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.add,
+                                    color: itemsColor,
                                   ))),
                         ),
                         SizedBox(
@@ -577,9 +592,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.minusContrast();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.remove,
+                                    color: itemsColor,
                                   ))),
                         ),
                       ]));
@@ -607,9 +623,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.addColor();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.add,
+                                    color: itemsColor,
                                   ))),
                         ),
                         SizedBox(
@@ -633,9 +650,10 @@ class PicEditorState extends State<PicEditor> {
                                       editorController.minusColor();
                                     });
                                   },
-                                  splashColor: Colors.white,
+                                  splashColor: Colors.grey,
                                   child: Icon(
                                     Icons.remove,
+                                    color: itemsColor,
                                   ))),
                         ),
                       ]));
@@ -682,11 +700,7 @@ class PicEditorState extends State<PicEditor> {
 
   Widget generateNavBarButton(IconData icon, EditorActions actions, Function() action) {
     bool isActive = editorController.currentAction == actions;
-    Color itemColor = editorController.editOptions.iconsColor;
-
-    if (editorController.isNearHue(theme.appBarTheme.backgroundColor!, itemColor)) {
-      itemColor = editorController.inverseColor(itemColor);
-    }
+    Color itemColor = Color(itemsColor.value);
 
     itemColor = isActive ? itemColor : itemColor.withAlpha(130);
 
