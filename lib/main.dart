@@ -14,13 +14,13 @@ Future<void> main() async {
     appInitialize();
     runApp(const MyApp());
 
-    }, (error, stackTrace) {
+  }, (error, stackTrace) {
     print('@@ catch on ZonedGuarded: ${error.toString()}');
 
-      if(kDebugMode) {
-        throw error;
-      }
+    if(kDebugMode) {
+      throw error;
     }
+  }
   );
 
   //appInitialize();
@@ -37,6 +37,4 @@ class MyApp extends StatelessWidget {
       child: Text('hi'),
     );
   }
-
-
 }
