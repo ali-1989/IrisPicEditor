@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iris_pic_editor/picEditor/enums.dart';
 
 class EditOptions {
-  EditOptions.byPath(this.imagePath) : assert(imagePath != null);
+  EditOptions.byFile(this.imagePath) : assert(imagePath != null);
   EditOptions.byBytes(this.imageBytes) : assert(imageBytes != null);
 
   String? imagePath;

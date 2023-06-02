@@ -1,8 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:iris_pic_editor/picEditor/croper.dart';
-import 'package:iris_pic_editor/picEditor/inOutParam.dart';
+import 'package:iris_pic_editor/picEditor/cropper.dart';
 import 'package:iris_pic_editor/picEditor/lazyCallAction.dart';
 import 'package:iris_pic_editor/picEditor/models/edit_options.dart';
 import 'package:iris_pic_editor/picEditor/models/editor_state.dart';
@@ -50,14 +49,14 @@ class PicEditorCtr {
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       //renderBox = state.context.findRenderObject() as RenderBox;
-      InOutParam outer = InOutParam();
 
       if (editOptions.imageBytes == null) {
         editOptions.imageBytes = PicEditor.readImageBytes(editOptions.imagePath!);
       }
 
-      editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, outer);
-      editOptions.originalSizeChanged = outer.originalSizeChanged!;
+      final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+      editOptions.image = x.$1;
+      editOptions.originalSizeChanged = x.$2;
 
       if (editOptions.originalSizeChanged) {
         editOptions.imageBytes = await PicEditor.imageToPngBytes(editOptions.image!);
@@ -131,8 +130,10 @@ class PicEditorCtr {
     option.outputFormat = outputFormat;
 
     editOptions.imageBytes = await ImageEditor.editImage(
-        image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, InOutParam());
+        image: editOptions.imageBytes!,
+        imageEditorOption: option,
+    );
+    editOptions.image = (await PicEditor.bytesToImage(editOptions.imageBytes!)).$1;
 
     /// for prepare crop square again
     editorState.cropArea.invalidateRect();
@@ -202,8 +203,8 @@ class PicEditorCtr {
     option.outputFormat = outputFormat;
 
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
-
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
     /*state.editOptions._image = await ImageHelper.rotateByCanvas(state.editOptions._image, 90);
   state.editOptions.imageBytes = await PicEditorState.imageToBytes(state.editOptions._image);*/
 
@@ -223,8 +224,8 @@ class PicEditorCtr {
     option.outputFormat = outputFormat;
 
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
-
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
     mustShowOperationProgress = false;
     state.stateController.updateGroup(state.id$state$progress);
   }
@@ -249,7 +250,8 @@ class PicEditorCtr {
     option.outputFormat = outputFormat;
 
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     mustShowOperationProgress = false;
     state.stateController.updateGroup(state.id$state$progress);
@@ -267,7 +269,8 @@ class PicEditorCtr {
     option.outputFormat = outputFormat;
 
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     mustShowOperationProgress = false;
     state.stateController.updateGroup(state.id$state$progress);
@@ -288,7 +291,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
@@ -302,7 +306,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     brightnessValue = 0;
     mustShowOperationProgress = false;
@@ -324,7 +329,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     contrastValue = 0;
     mustShowOperationProgress = false;
@@ -338,7 +344,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     contrastValue = 0;
     mustShowOperationProgress = false;
@@ -360,7 +367,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1 + colorValue));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     colorValue = 0;
     mustShowOperationProgress = false;
@@ -374,7 +382,8 @@ class PicEditorCtr {
     option.addOption(ColorOption.saturation(1 - colorValue));
     option.outputFormat = outputFormat;
     editOptions.imageBytes = await ImageEditor.editImage(image: editOptions.imageBytes!, imageEditorOption: option);
-    editOptions.image = await PicEditor.bytesToImage(editOptions.imageBytes!, null);
+    final x = await PicEditor.bytesToImage(editOptions.imageBytes!);
+    editOptions.image = x.$1;
 
     colorValue = 0;
     mustShowOperationProgress = false;

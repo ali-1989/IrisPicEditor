@@ -9,7 +9,6 @@ import 'package:iris_pic_editor/picEditor/models/edit_options.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:iris_pic_editor/picEditor/inOutParam.dart';
 import 'package:iris_pic_editor/picEditor/models/editor_state.dart';
 import 'package:iris_pic_editor/picEditor/state_manager.dart';
 import 'package:iris_pic_editor/picEditor/panGestureRecognizer.dart';
@@ -42,20 +41,17 @@ class PicEditor extends StatefulWidget {
     return file.readAsBytesSync();
   }
 
-  static Future<ui.Image> bytesToImage(Uint8List imgBytes, InOutParam? fnResult) async {
+  static Future<(ui.Image, bool)> bytesToImage(Uint8List imgBytes) async {
     ui.Codec codec = await ui.instantiateImageCodec(imgBytes);
     ui.FrameInfo frame = await codec.getNextFrame();
 
     bool isLandscape = frame.image.width >= frame.image.height;
     bool hasNormalSize = hasNormalDimension(Point(frame.image.width, frame.image.height), 1000, 800);
 
-    fnResult?.originalSizeChanged = false;
-
     if (hasNormalSize) {
-      return frame.image;
+      return (frame.image, false);
     }
 
-    fnResult?.originalSizeChanged = true;
     Point<int> xy = getScaledDimensionByRate(Point<int>(frame.image.width, frame.image.height), Point<int>(1000, 800));
 
     if (!isLandscape) {
@@ -64,7 +60,7 @@ class PicEditor extends StatefulWidget {
 
     codec = await ui.instantiateImageCodec(imgBytes, targetWidth: xy.x, targetHeight: xy.y);
     frame = await codec.getNextFrame();
-    return frame.image;
+    return (frame.image, true);
   }
 
   static Future<Uint8List> imageToPngBytes(ui.Image img) async {
@@ -136,8 +132,11 @@ class PicEditorState extends State<PicEditor> {
     if(widget.editOptions.primaryColor != null){
       theme = theme.copyWith(
           primaryColor: widget.editOptions.primaryColor,
-          backgroundColor: widget.editOptions.backgroundColor,
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: widget.editOptions.primaryColor!, accentColor: widget.editOptions.secondaryColor, backgroundColor: widget.editOptions.backgroundColor)
+          colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: widget.editOptions.primaryColor!,
+              accentColor: widget.editOptions.secondaryColor,
+              backgroundColor: widget.editOptions.backgroundColor,
+          )
       );
     }
 

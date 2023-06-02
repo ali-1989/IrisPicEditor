@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iris_pic_editor/picEditor/croper.dart';
+import 'package:iris_pic_editor/picEditor/cropper.dart';
 import 'package:iris_pic_editor/picEditor/models/edit_options.dart';
 
 class EditorState {
