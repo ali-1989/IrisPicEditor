@@ -5,7 +5,7 @@ typedef AssistBuilder = Widget Function(BuildContext context, AssistController c
 typedef OverlayBuilder = Widget Function(BuildContext context);
 typedef NotifierUpdate = void Function(dynamic sendData);
 ///===================================================================================================
-class Assist extends StatefulWidget {
+class PicEditorAssist extends StatefulWidget {
   final AssistController? controller;
   final bool? isHead;
   final String? id;
@@ -13,7 +13,7 @@ class Assist extends StatefulWidget {
   final AssistObserver? observable;
   final AssistBuilder builder;
 
-  Assist({
+  PicEditorAssist({
     Key? key,
     this.id,
     this.groupId,
@@ -26,7 +26,7 @@ class Assist extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _AssistState();
+    return _PicEditorAssistState();
   }
 }
 ///===================================================================================================
@@ -35,7 +35,7 @@ abstract class IAssistState<w extends StatefulWidget> extends State<w> {
   void disposeWidget();
 }
 ///===================================================================================================
-class _AssistState extends IAssistState<Assist> {
+class _PicEditorAssistState extends IAssistState<PicEditorAssist> {
   late AssistController _controller;
   OverlayBuilder? _overlayBuilder;
   late ValueNotifier<int> overlayNotifier;
@@ -53,7 +53,7 @@ class _AssistState extends IAssistState<Assist> {
   }
 
   @override
-  void didUpdateWidget(Assist oldWidget) {
+  void didUpdateWidget(PicEditorAssist oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if(widget.controller != oldWidget.controller){
@@ -122,8 +122,8 @@ class AssistController {
   /// public list of all assists
   static final List<AssistController> _allControllers = [];
 
-  _AssistState? _headStateRef;
-  final List<_AssistState> _assistStateList = [];
+  _PicEditorAssistState? _headStateRef;
+  final List<_PicEditorAssistState> _assistStateList = [];
   final List<GroupOfAssist> _groupList = [];
   final List<AssistObserver> _observerList = [];
   final Set<NotifierUpdate> _notifyHeadStateUpdate = {};
@@ -135,7 +135,7 @@ class AssistController {
     _allControllers.add(this);
   }
 
-  void _add(_AssistState state, bool? isHead){
+  void _add(_PicEditorAssistState state, bool? isHead){
     if(state.widget.id == null && state.widget.groupId == null && state.widget.observable == null){
       if(isHead != null && !isHead /*&& _headStateRef == null*/){
         throw Exception('this assist must be a head or have (an id or an groupId or an observer)');
@@ -292,7 +292,7 @@ class AssistController {
       final list = getGroups(groupId);
 
       for(final s in list){
-        final nS = s as _AssistState;
+        final nS = s as _PicEditorAssistState;
         nS.update(data: stateData);
       }
     }
@@ -332,7 +332,7 @@ class AssistController {
     return {};
   }
 
-  _AssistState? _getAssist(String assistId){
+  _PicEditorAssistState? _getAssist(String assistId){
     for(final s in _assistStateList){
       if(s.widget.id == assistId){
         return s;

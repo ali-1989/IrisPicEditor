@@ -166,7 +166,7 @@ class PicEditorState extends State<PicEditor> {
       itemsColor = editorController.inverseColor(itemsColor);
     }
 
-    return Assist(
+    return PicEditorAssist(
       isHead: true,
       controller: stateController,
       builder: (context, ctr, data) {
@@ -192,7 +192,7 @@ class PicEditorState extends State<PicEditor> {
       automaticallyImplyLeading: false,
       backgroundColor: theme.primaryColor,
       actions: <Widget>[
-        Assist(
+        PicEditorAssist(
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
@@ -358,7 +358,7 @@ class PicEditorState extends State<PicEditor> {
           left: 18,
           right: 18,
           height: 60,
-          child: Assist(
+          child: PicEditorAssist(
             id: id$state$toolbar,
             controller: stateController,
             builder: (ctx, ctr, data) {
@@ -673,7 +673,7 @@ class PicEditorState extends State<PicEditor> {
 
         ///---- progress
         Positioned.fill(
-          child: Assist(
+          child: PicEditorAssist(
             groupId: id$state$progress,
             controller: stateController,
             builder: (ctx, ctr, data) {
